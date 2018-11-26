@@ -1,5 +1,5 @@
 {
-  "name": "react-native-smart-amap",
+  "name": "react-native-amap",
   "version": "1.0.7",
   "description": "A AMap Library for React Native apps.",
   "main": "AMap.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/react-native-component/react-native-smart-amap.git"
+    "url": "git+https://github.com/TaroofSun/react-native-amap.git"
   },
   "keywords": [
     "react-native",
@@ -20,7 +20,7 @@
   "author": "HISAME SHIZUMARU",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/react-native-component/react-native-smart-amap/issues"
+    "url": "https://github.com/TaroofSun/react-native-amap/issues"
   },
-  "homepage": "https://github.com/react-native-component/react-native-smart-amap#readme"
+  "homepage": "https://github.com/TaroofSun/react-native-amap#readme"
 }
