@@ -41,8 +41,6 @@ import static com.amap.api.maps2d.AMapOptions.LOGO_POSITION_BOTTOM_RIGHT;
 import static com.amap.api.maps2d.AMapOptions.ZOOM_POSITION_RIGHT_CENTER;
 
 
-
-
 public class RCTAMapView extends FrameLayout implements LocationSource, AMapLocationListener, AMap.OnCameraChangeListener {
     private String centerMarker = "";
     private String locationMarker = "";
@@ -75,12 +73,13 @@ public class RCTAMapView extends FrameLayout implements LocationSource, AMapLoca
     private boolean scaleControls = false;
     private boolean compassEnable = false;
     private boolean onceLocation = true;
-    private ImageView CenterView;
+    private ImageView centerView;
 
     private long startTime;
 
     public void setLatLng(LatLng latLng) {
         this.latLng = latLng;
+//        this.AMAP.moveCamera(CameraUpdateFactory.newLatLngZoom(this.latLng, (float) 18.1));
     }
 
     public void setCenterMarker(String centerMarker) {
@@ -98,7 +97,7 @@ public class RCTAMapView extends FrameLayout implements LocationSource, AMapLoca
     public RCTAMapView(ThemedReactContext context) {
         super(context);
         this.CONTEXT = context;
-        CenterView = new ImageView(context);
+        centerView = new ImageView(context);
         Resources resources = context.getCurrentActivity().getResources();
         DisplayMetrics dm = resources.getDisplayMetrics();
 
@@ -110,16 +109,16 @@ public class RCTAMapView extends FrameLayout implements LocationSource, AMapLoca
         /**
          * 处理中心点控件位置
          */
-        if(centerMarker !=null && centerMarker != "") {
+        if (centerMarker != null && centerMarker != "") {
             HEIGHT = getHeight();
             WIDTH = getWidth();
-            LayoutParams params = (LayoutParams) CenterView.getLayoutParams();
+            LayoutParams params = (LayoutParams) centerView.getLayoutParams();
 
-            viewWidth = CenterView.getMeasuredWidth();
-            viewHeight = CenterView.getMeasuredHeight();
+            viewWidth = centerView.getMeasuredWidth();
+            viewHeight = centerView.getMeasuredHeight();
 
             params.setMargins(WIDTH / 2 - viewWidth / 2, HEIGHT / 2 - viewHeight, 0, 0);
-            CenterView.setLayoutParams(params);
+            centerView.setLayoutParams(params);
         }
 
         super.onLayout(changed, left, top, right, bottom);
@@ -148,10 +147,10 @@ public class RCTAMapView extends FrameLayout implements LocationSource, AMapLoca
         this.addView(MAPVIEW);
         MAPVIEW.onCreate(CONTEXT.getCurrentActivity().getIntent().getExtras());
 
-        if(centerMarker !=null && centerMarker != "") {
-            CenterView.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-            CenterView.setImageResource(getImageId(centerMarker));
-            this.addView(CenterView, 1);
+        if (centerMarker != null && centerMarker != "") {
+            centerView.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+            centerView.setImageResource(R.drawable.poi_marker);
+            this.addView(centerView, 1);
         }
 
         setMapOptions();
@@ -174,7 +173,7 @@ public class RCTAMapView extends FrameLayout implements LocationSource, AMapLoca
         mapUiSettings.setCompassEnabled(compassEnable);//指南针
         mapUiSettings.setZoomGesturesEnabled(zoomGestures);//手势缩放
         mapUiSettings.setScaleControlsEnabled(scaleControls);//比例尺
-
+        mapUiSettings.setZoomInByScreenCenter(true);
         changeCamera(
                 CameraUpdateFactory.newCameraPosition(new CameraPosition(
                         latLng, (float) zoomLevel, 30, 0)));
@@ -184,9 +183,6 @@ public class RCTAMapView extends FrameLayout implements LocationSource, AMapLoca
 
         AMAP.setLocationSource(this);// 设置定位监听
         AMAP.setOnCameraChangeListener(this);// 对amap添加移动地图事件监听器
-        mapUiSettings.setMyLocationButtonEnabled(false);// 设置默认定位按钮是否显示
-        AMAP.setMyLocationEnabled(true);// 设置为true表示显示定位层并可触发定位，false表示隐藏定位层并不可触发定位，默认是false
-
 
     }
 
@@ -198,9 +194,9 @@ public class RCTAMapView extends FrameLayout implements LocationSource, AMapLoca
      * @param mLocMarker
      */
     private void addLocationMarker(LatLng latLng, float RADIUS, Marker mLocMarker) {
-//        addCircle(latLng, RADIUS);//添加定位精度圆
-//        addMarker(latLng);//添加定位图标
-//        mSensorHelper.setCurrentMarker(mLocMarker);//定位图标旋转
+        addCircle(latLng, RADIUS);//添加定位精度圆
+        addMarker(latLng);//添加定位图标
+        mSensorHelper.setCurrentMarker(mLocMarker);//定位图标旋转
     }
 
     /**
@@ -274,44 +270,44 @@ public class RCTAMapView extends FrameLayout implements LocationSource, AMapLoca
     @Override
     public void onLocationChanged(AMapLocation amapLocation) {
 
-//        if (!isFirstMove) {
-//            isFirstMove = true;
-//        }
-//
-//        if (mListener != null && amapLocation != null) {
-//            if (amapLocation != null
-//                    && amapLocation.getErrorCode() == 0) {
-//
-//                location = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
-////                Log.i("TEST", "getLatitude:"+amapLocation.getLatitude()+"getLongitude:"+amapLocation.getLongitude());
+        if (!isFirstMove) {
+            isFirstMove = true;
+        }
+
+        if (mListener != null && amapLocation != null) {
+            if (amapLocation != null
+                    && amapLocation.getErrorCode() == 0) {
+
+                location = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
+//                Log.i("TEST", "getLatitude:"+amapLocation.getLatitude()+"getLongitude:"+amapLocation.getLongitude());
 //                DEFAULTCITY = amapLocation.getCity();
-//                if (!hasLocationMarker) {
-//                    hasLocationMarker = true;
-//                    addLocationMarker(location, RADIUS, mLocMarker);
-////                    首次定位到点location
-////                    AMAP.moveCamera(CameraUpdateFactory.newLatLngZoom(location, zoomLevel));
-//                } else {
-//                    mCircle.setCenter(location);
-//                    mCircle.setRadius(RADIUS);
-//                    mLocMarker.setPosition(location);
-//                }
-//                //移动镜头定位到点location
-//                /*AMAP.moveCamera(CameraUpdateFactory.newLatLngZoom(location, zoomLevel));*/
-//
-//                changeCamera(
-//                        CameraUpdateFactory.newCameraPosition(new CameraPosition(
-//                                location, zoomLevel, 30, 0)));
-//              /*  animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(
-//                        location, zoomLevel, 30, 0)),null);*/
-//                changeCamera(CameraUpdateFactory.scrollBy(0, -SCROLL_BY_PX));
-//            } else {
-//                String errText = "定位失败," + amapLocation.getErrorCode() + ": " + amapLocation.getErrorInfo();
-//                Log.i("TEST", errText);
-//
-//            }
-//        }
-//        long endTime2 = System.currentTimeMillis();
-//        Log.i("Test", "onLocationChangedFINISH:" + (endTime2 - startTime + ",getLatitude=" + amapLocation.getLatitude() + "getLongitude=" + amapLocation.getLongitude()));
+                if (!hasLocationMarker) {
+                    hasLocationMarker = true;
+                    addLocationMarker(location, RADIUS, mLocMarker);
+//                    首次定位到点location
+//                    AMAP.moveCamera(CameraUpdateFactory.newLatLngZoom(location, zoomLevel));
+                } else {
+                    mCircle.setCenter(location);
+                    mCircle.setRadius(RADIUS);
+                    mLocMarker.setPosition(location);
+                }
+                //移动镜头定位到点location
+                /*AMAP.moveCamera(CameraUpdateFactory.newLatLngZoom(location, zoomLevel));*/
+
+                changeCamera(
+                        CameraUpdateFactory.newCameraPosition(new CameraPosition(
+                                location, (float) zoomLevel, 30, 0)));
+              /*  animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(
+                        location, zoomLevel, 30, 0)),null);*/
+                changeCamera(CameraUpdateFactory.scrollBy(0, -SCROLL_BY_PX));
+            } else {
+                String errText = "定位失败," + amapLocation.getErrorCode() + ": " + amapLocation.getErrorInfo();
+                Log.i("TEST", errText);
+
+            }
+        }
+        long endTime2 = System.currentTimeMillis();
+        Log.i("Test", "onLocationChangedFINISH:" + (endTime2 - startTime + ",getLatitude=" + amapLocation.getLatitude() + "getLongitude=" + amapLocation.getLongitude()));
     }
 
     /**
@@ -319,7 +315,7 @@ public class RCTAMapView extends FrameLayout implements LocationSource, AMapLoca
      */
     public LatLng getCenterLocation() {
         LatLng latlng = AMAP.getCameraPosition().target;
-//    addMarkersToMap(latlng);
+        addMarkersToMap(latlng);
         return latlng;
     }
 
@@ -328,8 +324,8 @@ public class RCTAMapView extends FrameLayout implements LocationSource, AMapLoca
      */
     public void setCenterLocation(double latitude, double longitude) {
         LatLng latlng = new LatLng(latitude, longitude);
-        AMAP.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, (float)zoomLevel));
-//    addMarkersToMap(latlng);
+        AMAP.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, (float) zoomLevel));
+        addMarkersToMap(latlng);
     }
 
     /**
@@ -337,11 +333,11 @@ public class RCTAMapView extends FrameLayout implements LocationSource, AMapLoca
      */
     private void addMarkersToMap(LatLng latlng) {
 
-        markerOption = new MarkerOptions().icon(BitmapDescriptorFactory
-                .defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                .position(latlng)
-                .draggable(true);
-        AMAP.addMarker(markerOption);
+//        markerOption = new MarkerOptions().icon(BitmapDescriptorFactory
+//                .defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+//                .position(latlng)
+//                .draggable(true);
+//        AMAP.addMarker(markerOption);
     }
 
 
@@ -446,7 +442,7 @@ public class RCTAMapView extends FrameLayout implements LocationSource, AMapLoca
         /**
          * 中心点动画开始
          */
-        ObjectAnimator translationYAnim = ObjectAnimator.ofFloat(CenterView, "translationY", 0.0f, -viewHeight / 2, 0.0f);
+        ObjectAnimator translationYAnim = ObjectAnimator.ofFloat(centerView, "translationY", 0.0f, -viewHeight / 2, 0.0f);
         translationYAnim.setDuration(600);
 //        translationYAnim.setRepeatCount(ValueAnimator.RESTART);//重复一次
 //        translationYAnim.setRepeatMode(ValueAnimator.INFINITE);
